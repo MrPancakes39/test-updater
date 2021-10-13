@@ -48,6 +48,7 @@ module.exports.downloadUpdate = async () => {
     console.log("File written");
     await streamPipeline(fs.createReadStream(output), extract({ path: app.getPath("temp") }));
     win.webContents.send("update-downloaded", "[ipcMain] update-downloaded")
+    await this.quitAndInstall();
 }
 
 function execute(fileName, params, path) {
@@ -56,7 +57,6 @@ function execute(fileName, params, path) {
             if (err) reject(err);
             else resolve(data);
         });
-
     });
     return promise;
 }
