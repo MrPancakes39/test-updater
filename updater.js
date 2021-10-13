@@ -62,6 +62,7 @@ function execute(fileName, params, path) {
 }
 
 module.exports.quitAndInstall = async () => {
+    console.log("Installing");
     const path = app.getPath("temp");
     app.quit();
     await execute(this.win_installer, "", path);
