@@ -22,12 +22,36 @@
         h1 {
             font-size: 3rem;
         }
+
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
     <h1>Testing Auto-Updater</h1>
     <h2 id="ver"></h2>
+    <div id="notification" class="hidden">
+        <p id="message"></p>
+        <button id="close-button">
+            Close
+        </button>
+        <button id="restart-button" class="hidden">
+            Restart
+        </button>
+    </div>
 </body>
 
 </html>

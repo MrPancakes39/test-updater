@@ -4,7 +4,8 @@
   "description": "Testing My Own Auto-Updater",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package-win": "electron-packager . test-updater --overwrite --asar=true --platform=win32 --arch=ia32 --prune=true --out=release-builds --version-string.CompanyName=SH --version-string.FileDescription=SH --version-string.ProductName=\"Test Updater\""
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,10 @@
   "devDependencies": {
     "electron": "^13.5.2",
     "electron-packager": "^15.4.0"
+  },
+  "dependencies": {
+    "node-fetch": "2.6.5",
+    "semver": "^7.3.5",
+    "unzipper": "^0.10.11"
   }
 }
