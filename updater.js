@@ -39,7 +39,7 @@ module.exports.downloadUpdate = async () => {
     const streamPipeline = require("util").promisify(require("stream").pipeline);
     const url = `https://github.com/${this.repo}/releases/latest/download/${this.win_package}`;
     const res = await fetch(url);
-    const output = path.join(app.getPath("temp"), package);
+    const output = path.join(app.getPath("temp"), this.win_package);
     await streamPipeline(res.body, fs.createWriteStream(output));
     await streamPipeline(fs.createReadStream(output), extract({ path: app.getPath("temp") }));
     win.webContents.send("update-downloaded", "[ipcMain] update-downloaded")
