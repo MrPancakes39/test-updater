@@ -26,11 +26,14 @@ module.exports.checkForUpdates = async () => {
     const versions = data.sort((v1, v2) => require("semver").compare(v2.name, v1.name));
 
     const githubVersion = versions[0].name;
-    if (currentVersion === githubVersion) {
+    console.log(githubVersion);
+    if (currentVersion !== githubVersion) {
         win.webContents.send("update-available", "[ipcMain] update-available");
+        console.log( "[ipcMain] update-available");
         await this.downloadUpdate();
     } else {
         win.webContents.send("update-not-available", "[ipcMain] update-not-available");
+        console.log("[ipcMain] update-not-available")
     }
 }
 
@@ -40,7 +43,9 @@ module.exports.downloadUpdate = async () => {
     const url = `https://github.com/${this.repo}/releases/latest/download/${this.win_package}`;
     const res = await fetch(url);
     const output = path.join(app.getPath("temp"), this.win_package);
+    console.log(output);
     await streamPipeline(res.body, fs.createWriteStream(output));
+    console.log("File written");
     await streamPipeline(fs.createReadStream(output), extract({ path: app.getPath("temp") }));
     win.webContents.send("update-downloaded", "[ipcMain] update-downloaded")
 }

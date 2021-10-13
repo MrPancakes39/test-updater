@@ -35,6 +35,8 @@ app.whenReady().then(() => {
             app.quit();
         }
     });
+
+    console.log(app.getVersion());
 });
 
 ipcMain.on("restart_app", () => {
