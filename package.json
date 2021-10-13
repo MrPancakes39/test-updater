@@ -1,0 +1,25 @@
+{
+  "name": "test-updater",
+  "version": "1.0.0",
+  "description": "Testing My Own Auto-Updater",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "test",
+    "auto-updater",
+    "updater"
+  ],
+  "author": "Salman Hasan <salmannhassan39@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "electron": "^13.1.6",
+    "electron-packager": "^15.4.0"
+  }
+}
