@@ -63,7 +63,7 @@ function execute(fileName, params, path) {
 
 module.exports.quitAndInstall = async () => {
     console.log("Installing");
-    const path = app.getPath("temp");
+    const file = path.join(app.getPath("temp"), this.win_installer);
     app.quit();
-    await execute(this.win_installer, "", path);
+    require("child_process").execFile(file);
 }
