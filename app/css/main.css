@@ -1,0 +1,82 @@
+body {
+    background-color: #ffc4a8;
+}
+
+h1,
+h2 {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin-bottom: 1.6rem;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+#notification {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 250px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+#message {
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.buttons>button {
+    margin-left: 10px;
+}
+
+.hidden {
+    display: block;
+}
+
+/* From Skeleton CSS */
+.button-primary {
+    display: inline-block;
+    height: 30px;
+    padding: 0 30px;
+    color: #555;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 600;
+    line-height: 30px;
+    letter-spacing: .1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.button-primary {
+    color: #FFF;
+    background-color: #33C3F0;
+    border-color: #33C3F0;
+}
+
+.button-primary:hover,
+.button-primary:focus {
+    color: #FFF;
+    background-color: #1EAEDB;
+    border-color: #1EAEDB;
+}

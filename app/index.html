@@ -7,51 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Testing Auto-Updater</title>
-    <style>
-        body {
-            background-color: #ffc4a8;
-        }
-
-        h1,
-        h2 {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            margin-bottom: 1.6rem;
-        }
-
-        h1 {
-            font-size: 3rem;
-        }
-
-        #notification {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 200px;
-            padding: 20px;
-            border-radius: 5px;
-            background-color: white;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/main.css">
 </head>
 
-<body>
+<body onload="setup()">
     <h1>Testing Auto-Updater</h1>
     <h2 id="ver"></h2>
     <div id="notification" class="hidden">
         <p id="message"></p>
-        <button id="close-button">
-            Close
-        </button>
-        <button id="restart-button" class="hidden">
-            Restart
-        </button>
+        <div class="buttons">
+            <button id="close-button" class="button-primary">Close</button>
+            <button id="restart-button" class="button-primary hidden">Restart</button>
+        </div>
     </div>
+    <script src="./js/main.js"></script>
 </body>
 
 </html>

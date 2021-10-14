@@ -1,13 +1,15 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
+require("./backend/setup-ipc").setup();
+
 function createWindow() {
     const win = new BrowserWindow({
         width: 640,
         height: 480,
         show: false,
         webPreferences: {
-            preload: path.join(__dirname, "app", "preload.js")
+            preload: path.join(__dirname, "backend", "preload.js")
         }
     });
 
