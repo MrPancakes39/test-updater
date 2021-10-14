@@ -22,10 +22,5 @@
   "devDependencies": {
     "electron": "^13.5.2",
     "electron-packager": "^15.4.0"
-  },
-  "dependencies": {
-    "node-fetch": "2.6.5",
-    "semver": "^7.3.5",
-    "unzipper": "^0.10.11"
   }
 }
