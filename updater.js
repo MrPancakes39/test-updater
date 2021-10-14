@@ -27,7 +27,7 @@ module.exports.checkForUpdates = async () => {
 
     const githubVersion = versions[0].name;
     console.log(githubVersion);
-    if (currentVersion !== githubVersion) {
+    if (currentVersion !== githubVersion && versions.includes(currentVersion)) {
         win.webContents.send("update-available", "[ipcMain] update-available");
         console.log( "[ipcMain] update-available");
         await this.downloadUpdate();
@@ -48,17 +48,7 @@ module.exports.downloadUpdate = async () => {
     console.log("File written");
     await streamPipeline(fs.createReadStream(output), extract({ path: app.getPath("temp") }));
     win.webContents.send("update-downloaded", "[ipcMain] update-downloaded")
-    await this.quitAndInstall();
-}
-
-function execute(fileName, params, path) {
-    let promise = new Promise((resolve, reject) => {
-        require("child_process").execFile(fileName, params, { cwd: path }, (err, data) => {
-            if (err) reject(err);
-            else resolve(data);
-        });
-    });
-    return promise;
+    this.quitAndInstall();
 }
 
 module.exports.quitAndInstall = async () => {
