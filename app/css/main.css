@@ -13,7 +13,7 @@ h1 {
     font-size: 3rem;
 }
 
-#notification {
+.notification {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -41,10 +41,6 @@ h1 {
 
 .buttons>button {
     margin-left: 10px;
-}
-
-.hidden {
-    display: block;
 }
 
 /* From Skeleton CSS */
@@ -79,4 +75,12 @@ h1 {
     color: #FFF;
     background-color: #1EAEDB;
     border-color: #1EAEDB;
+}
+
+.hidden:not(#restart-button) {
+    display: none;
+}
+
+#restart-button.hidden {
+    visibility: hidden;
 }
