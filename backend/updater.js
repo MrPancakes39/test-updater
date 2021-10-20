@@ -98,14 +98,15 @@ class GitUpdater extends EventEmitter {
             const output = app.getPath("temp");
 
             const zip = new AdmZip(data);
-            const zipEntries = zip.getEntries()
-            for(let i=0; i < zipEntries.length; i++) {
-                if (zipEntries[i].entryName === installer){
-                    zip.extractEntryTo(zipEntries[i], output, true, true);
-                    return true; // extracted
+
+            let extracted = false;
+            zip.getEntries().forEach(zipEntry => {
+                if (zipEntry.entryName === installer) {
+                    zip.extractEntryTo(zipEntry, output, true, true);
+                    extracted = true;
                 }
-            };
-            return false; // not extracted
+            });
+            return extracted;
         } catch(err){
             console.log("\n", err);
             this.#updateAvailable = false;
