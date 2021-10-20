@@ -1,7 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
-require("./backend/setup-ipc").setup();
+const gitUpdater = require("./backend/updater");
+gitUpdater.setUpdateOpts({
+    repo: "MrPancakes39/test-updater",
+    archive: "test-updater-win.zip",
+    installer: "test-updater-installer.exe"
+});
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -14,7 +19,14 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, "app", "index.html"));
-    win.on("ready-to-show", win.show);
+    win.on("ready-to-show", () => {
+        if(process.platform === "win32"){
+            gitUpdater.checkForUpdates();
+            gitUpdater.on("update-available", () => win.webContents.send("update-available"));
+            gitUpdater.on("update-downloaded", () => win.webContents.send("update-downloaded"));
+        }
+        win.show();
+    });
 }
 
 app.whenReady().then(() => {
@@ -31,6 +43,12 @@ app.whenReady().then(() => {
             app.quit();
         }
     });
+});
 
-    console.log(app.getVersion());
+ipcMain.on("appVersion", (event)=>{
+    event.reply("app-version", JSON.stringify({version: app.getVersion()}) );
+});
+
+ipcMain.on("restartApp", (event)=>{
+    gitUpdater.quitAndInstall();
 });

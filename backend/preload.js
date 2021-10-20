@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 window.addEventListener("DOMContentLoaded", () => {
     contextBridge.exposeInMainWorld("nodeAPI", {
         send: (channel, data) => {
-            let validChannels = ["appVersion"];
+            let validChannels = ["appVersion", "restartApp"];
             if (validChannels.includes(channel))
                 ipcRenderer.send(channel, data);
         },
