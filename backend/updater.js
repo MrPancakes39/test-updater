@@ -67,39 +67,50 @@ class GitUpdater extends EventEmitter {
         if(!this.#updateOptsSet) {
             throw new Error("Update Options are not set");
         }
-        const { repo } = this.#updateOpts;
-        const versions = await this.#getVersions(repo);
+        try {
+            const { repo } = this.#updateOpts;
+            const versions = await this.#getVersions(repo);
 
-        const currentVersion = this.#getSemver(app.getVersion());
-        const {latestVersion, releaseNotes} = await this.#getLatestVersion(repo);
-        const isAvailable = (currentVersion !== latestVersion && versions.includes(currentVersion));
-        // const isAvailable = (currentVersion !== latestVersion);
-
-        return { isAvailable, releaseNotes, version: latestVersion };
+            const currentVersion = this.#getSemver(app.getVersion());
+            const {latestVersion, releaseNotes} = await this.#getLatestVersion(repo);
+            const isAvailable = (currentVersion !== latestVersion && versions.includes(currentVersion));
+            // const isAvailable = (currentVersion !== latestVersion);
+            console.log(latestVersion);
+            return { isAvailable, releaseNotes, version: latestVersion };
+        } catch(err){
+            console.error("\n", err);
+            return { isAvailable: false, releaseNotes: null, version: null };
+        }
     }
 
     async #downloadUpdate(){
         if(!this.#updateOptsSet) {
             throw new Error("Update Options are not set");
         }
-        const { repo, archive, installer } = this.#updateOpts;
-        const url = `https://github.com/${repo}/releases/latest/download/${archive}`;
+        try {
+            const { repo, archive, installer } = this.#updateOpts;
+            const url = `https://github.com/${repo}/releases/latest/download/${archive}`;
 
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Unexpected response: ${res.statusText}`);
-        // const data = await res.buffer();
-        const data = await read(res);
-        const output = app.getPath("temp");
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Unexpected response: ${res.statusText}`);
+            // const data = await res.buffer();
+            const data = await read(res);
+            const output = app.getPath("temp");
 
-        const zip = new AdmZip(data);
-        const zipEntries = zip.getEntries()
-        for(let i=0; i < zipEntries.length; i++) {
-            if (zipEntries[i].entryName === installer){
-                zip.extractEntryTo(zipEntries[i], output, true, true);
-                return true; // extracted
-            }
-        };
-        return false; // not extracted
+            const zip = new AdmZip(data);
+            const zipEntries = zip.getEntries()
+            for(let i=0; i < zipEntries.length; i++) {
+                if (zipEntries[i].entryName === installer){
+                    zip.extractEntryTo(zipEntries[i], output, true, true);
+                    return true; // extracted
+                }
+            };
+            return false; // not extracted
+        } catch(err){
+            console.log("\n", err);
+            this.#updateAvailable = false;
+            return false;
+        }
     }
 
     quitAndInstall() {
