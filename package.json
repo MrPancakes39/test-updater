@@ -1,6 +1,6 @@
 {
   "name": "test-updater",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Testing My Own Auto-Updater",
   "main": "index.js",
   "scripts": {
