@@ -11,9 +11,10 @@ const printf = (...args) => process.stdout.write(...args);
 const read = require("./show-progress");
 
 class GitUpdater extends EventEmitter {
-    #updateAvailable = false;
     #updateOpts = {};
     #updateOptsSet = false;
+    #updateAvailable = false;
+    #updateDownloaded = false;
 
     getUpdateOpts() {
         return this.#updateOpts;
@@ -110,24 +111,26 @@ class GitUpdater extends EventEmitter {
     quitAndInstall() {
         if(!this.#updateOptsSet) {
             this.emitError(new Error("Update Options are not set"));
-        }
-        if (!this.#updateAvailable) {
+        } else if (!this.#updateAvailable) {
             this.emitError(new Error("No update available, can't quit and install"));
-        }
-        printf("[3/4] Quiting App. ");
-        const dirpath = app.getPath("temp");
-        const { installer } = this.#updateOpts;
-        const file = path.join(dirpath, installer);
-        this.#closeAllWindows();
-        app.quit();
-        printf("Done.\n");
+        } else if(!this.#updateDownloaded){
+            this.emitError(new Error("Failed at downloading update, can't quit and install"));
+        } else {
+            printf("[3/4] Quiting App. ");
+            const dirpath = app.getPath("temp");
+            const { installer } = this.#updateOpts;
+            const file = path.join(dirpath, installer);
+            this.#closeAllWindows();
+            app.quit();
+            printf("Done.\n");
 
-        printf("[4/4] Starting Installer. ");
-        spawn(file, [], {
-            stdio: "ignore",
-            detached: true
-        }).unref();
-        printf("Done.\n");
+            printf("[4/4] Starting Installer. ");
+            spawn(file, [], {
+                stdio: "ignore",
+                detached: true
+            }).unref();
+            printf("Done.\n");
+        }
     }
 
     async checkForUpdates() {
@@ -140,11 +143,12 @@ class GitUpdater extends EventEmitter {
         const { isAvailable, releaseNotes, version } = await this.#isUpdateAvailable();
         printf("Done.\n");
 
+        this.#updateAvailable = isAvailable;
         if(isAvailable){
-            this.#updateAvailable = true;
             this.emit("update-available");
             console.log("[2/4] Downloading update.");
             const done = await this.#downloadUpdate();
+            this.#updateDownloaded = done;
             if(done) {
                 printf("Done.\n");
                 const date = new Date();

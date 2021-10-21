@@ -43,6 +43,10 @@ app.whenReady().then(() => {
             app.quit();
         }
     });
+
+    app.on("before-quit", () => {
+        gitUpdater.quitAndInstall();
+    })
 });
 
 ipcMain.on("appVersion", (event)=>{
