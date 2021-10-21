@@ -5,7 +5,7 @@ const gitUpdater = require("./backend/updater");
 gitUpdater.setUpdateOpts({
     repo: "MrPancakes39/test-updater",
     archive: "test-updater-win.zip",
-    installer: "test-updater-installer.exe"
+    installer: "test-updater-setup.exe"
 });
 
 function createWindow() {

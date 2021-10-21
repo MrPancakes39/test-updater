@@ -29,11 +29,11 @@ class GitUpdater extends EventEmitter {
                     this.#updateOptsSet = true;
                     }
                     else
-                        throw new Error("'repo' property doesn't have this format: {username}/{repo}");
+                        this.emitError(new Error("'repo' property doesn't have this format: {username}/{repo}"));
                 else
-                    throw new Error("All options need to be string");
+                    this.emitError(new Error("All options need to be string"));
             else
-                throw new Error("Some required properties are missing"); 
+                this.emitError(new Error("Some required properties are missing")); 
         }
     }
 
@@ -45,7 +45,7 @@ class GitUpdater extends EventEmitter {
     async #getVersions(repo){
         const url = `https://api.github.com/repos/${repo}/releases`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`Unexpected response: ${res.statusText}`);
+        if (!res.ok) this.emitError(new Error(`Unexpected response: ${res.statusText}`));
         const data = await res.json();
         const json = data.map(ver => this.#getSemver(ver.name))
                          .sort((v1, v2) => semver.compare(v2, v1));
@@ -55,7 +55,7 @@ class GitUpdater extends EventEmitter {
     async #getLatestVersion(repo){
         const url = `https://api.github.com/repos/${repo}/releases/latest`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`Unexpected response: ${res.statusText}`);
+        if (!res.ok) this.emitError(new Error(`Unexpected response: ${res.statusText}`));
         const release = await res.json();
 
         const latestVersion = this.#getSemver(release["name"]);
@@ -65,7 +65,7 @@ class GitUpdater extends EventEmitter {
 
     async #isUpdateAvailable(){
         if(!this.#updateOptsSet) {
-            throw new Error("Update Options are not set");
+            this.emitError(new Error("Update Options are not set"));
         }
         try {
             const { repo } = this.#updateOpts;
@@ -85,28 +85,21 @@ class GitUpdater extends EventEmitter {
 
     async #downloadUpdate(){
         if(!this.#updateOptsSet) {
-            throw new Error("Update Options are not set");
+            this.emitError(new Error("Update Options are not set"));
         }
         try {
             const { repo, archive, installer } = this.#updateOpts;
             const url = `https://github.com/${repo}/releases/latest/download/${archive}`;
 
             const res = await fetch(url);
-            if (!res.ok) throw new Error(`Unexpected response: ${res.statusText}`);
+            if (!res.ok) this.emitError(new Error(`Unexpected response: ${res.statusText}`));
             // const data = await res.buffer();
             const data = await read(res);
             const output = app.getPath("temp");
 
             const zip = new AdmZip(data);
-
-            let extracted = false;
-            zip.getEntries().forEach(zipEntry => {
-                if (zipEntry.entryName === installer) {
-                    zip.extractEntryTo(zipEntry, output, true, true);
-                    extracted = true;
-                }
-            });
-            return extracted;
+            zip.extractEntryTo(installer, output, true, true);
+            return true;
         } catch(err){
             console.log("\n", err);
             this.#updateAvailable = false;
@@ -116,10 +109,10 @@ class GitUpdater extends EventEmitter {
 
     quitAndInstall() {
         if(!this.#updateOptsSet) {
-            throw new Error("Update Options are not set");
+            this.emitError(new Error("Update Options are not set"));
         }
         if (!this.#updateAvailable) {
-            throw new Error("No update available, can't quit and install");
+            this.emitError(new Error("No update available, can't quit and install"));
         }
         printf("[3/4] Quiting App. ");
         const dirpath = app.getPath("temp");
@@ -139,7 +132,7 @@ class GitUpdater extends EventEmitter {
 
     async checkForUpdates() {
         if(!this.#updateOptsSet) {
-            throw new Error("Update Options are not set");
+            this.emitError(new Error("Update Options are not set"));
         }
         
         this.emit("checking-for-update");
@@ -152,12 +145,16 @@ class GitUpdater extends EventEmitter {
             this.emit("update-available");
             console.log("[2/4] Downloading update.");
             const done = await this.#downloadUpdate();
-            printf("Done.\n");
             if(done) {
+                printf("Done.\n");
                 const date = new Date();
                 this.emit("update-downloaded", {}, releaseNotes, version, date, this.#updateOpts, () => {
                     this.quitAndInstall();
                 });
+            } else {
+                printf("Error.\n");
+                this.emit("downloading-failed");
+                this.emitError(new Error("Couldn't Download The Update"));
             }
         } else {
             printf("[4/4] Update not available.\n");
@@ -169,6 +166,10 @@ class GitUpdater extends EventEmitter {
         BrowserWindow.getAllWindows().forEach(win => {
             win.destroy();
         });
+    }
+
+    emitError(error) {
+        this.emit("error", error, error.message);
     }
 }
 
