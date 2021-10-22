@@ -24,6 +24,7 @@ function createWindow() {
             gitUpdater.checkForUpdates();
             gitUpdater.on("update-available", () => win.webContents.send("update-available"));
             gitUpdater.on("update-downloaded", () => win.webContents.send("update-downloaded"));
+            // gitUpdater.on("error", (err) => console.error(err));
         }
         win.show();
     });
@@ -43,10 +44,6 @@ app.whenReady().then(() => {
             app.quit();
         }
     });
-
-    app.on("before-quit", () => {
-        gitUpdater.quitAndInstall();
-    })
 });
 
 ipcMain.on("appVersion", (event)=>{

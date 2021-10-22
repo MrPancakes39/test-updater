@@ -3,6 +3,7 @@ const { EventEmitter }  = require("events");
 const { spawn } = require("child_process");
 const path = require("path");
 
+const fs = require("fs-extra");
 const fetch = require("node-fetch");
 const semver = require("semver");
 const AdmZip = require("adm-zip");
@@ -26,8 +27,20 @@ class GitUpdater extends EventEmitter {
             if(keys.includes("repo") && keys.includes("archive") && keys.includes("installer"))
                 if(typeof opts["repo"] === "string" && typeof opts["archive"] === "string" && typeof opts["installer"] === "string")
                     if(/.+\/.+/g.test(opts["repo"])) {
-                    this.#updateOpts = opts;
-                    this.#updateOptsSet = true;
+                        this.#updateOpts = opts;
+                        this.#updateOptsSet = true;
+                        this.#updateOpts["outDir"] = path.join(app.getPath("temp"), app.getName());
+                        this.#updateOpts["outFile"] = path.join(this.#updateOpts["outDir"], this.#updateOpts["installer"]);
+
+                        app.on("will-quit", ()=>{
+                            this.#tryInstall();
+                        });
+                        try {
+                            fs.ensureFileSync(this.#updateOpts["outFile"]);
+                            fs.removeSync(this.#updateOpts["outFile"]);
+                        } catch(err){
+                            this.emitError(err);
+                        }
                     }
                     else
                         this.emitError(new Error("'repo' property doesn't have this format: {username}/{repo}"));
@@ -79,7 +92,7 @@ class GitUpdater extends EventEmitter {
             console.log(latestVersion);
             return { isAvailable, releaseNotes, version: latestVersion };
         } catch(err){
-            console.error("\n", err);
+            this.emitError(err);
             return { isAvailable: false, releaseNotes: null, version: null };
         }
     }
@@ -89,17 +102,16 @@ class GitUpdater extends EventEmitter {
             this.emitError(new Error("Update Options are not set"));
         }
         try {
-            const { repo, archive, installer } = this.#updateOpts;
+            const { repo, archive, installer, outDir } = this.#updateOpts;
             const url = `https://github.com/${repo}/releases/latest/download/${archive}`;
 
             const res = await fetch(url);
             if (!res.ok) this.emitError(new Error(`Unexpected response: ${res.statusText}`));
             // const data = await res.buffer();
             const data = await read(res);
-            const output = app.getPath("temp");
 
             const zip = new AdmZip(data);
-            zip.extractEntryTo(installer, output, true, true);
+            zip.extractEntryTo(installer, outDir, true, true);
             return true;
         } catch(err){
             console.log("\n", err);
@@ -108,7 +120,7 @@ class GitUpdater extends EventEmitter {
         }
     }
 
-    quitAndInstall() {
+    #installChecks() {
         if(!this.#updateOptsSet) {
             this.emitError(new Error("Update Options are not set"));
         } else if (!this.#updateAvailable) {
@@ -116,14 +128,23 @@ class GitUpdater extends EventEmitter {
         } else if(!this.#updateDownloaded){
             this.emitError(new Error("Failed at downloading update, can't quit and install"));
         } else {
+            return true;
+        }
+        return false;
+    }
+
+    quitAndInstall() {
+        if(this.#installChecks()) {
             printf("[3/4] Quiting App. ");
-            const dirpath = app.getPath("temp");
-            const { installer } = this.#updateOpts;
-            const file = path.join(dirpath, installer);
             this.#closeAllWindows();
             app.quit();
             printf("Done.\n");
+        }
+    }
 
+    #tryInstall() {
+        if(this.#installChecks()){
+            const file = this.#updateOpts["outFile"];
             printf("[4/4] Starting Installer. ");
             spawn(file, [], {
                 stdio: "ignore",
