@@ -20,7 +20,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "electron": "^22.3.25",
+    "electron": "^28.3.2",
     "electron-packager": "^15.4.0"
   },
   "dependencies": {
